@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qxc.mybatis.mapper.UserMapper">
+    <insert id="insertUser">
+        insert into test2
+        values (NULL, 1, '11', 12, 21, '123', '123132')
+    </insert>
+    <insert id="insertUser4">
+        insert into test2
+        values (null, #{num1}, #{num2}, #{type1}, #{type2}, #{str1}, #{str2})
+    </insert>
+<!--    useGeneratedKeys="true" keyProperty="id"设置之后会将属性注入id-->
+    <insert id="insertUserss" useGeneratedKeys="true" keyProperty="id">
+        insert into test2 values (null,#{num1}, #{num2}, #{type1}, #{type2}, #{str1}, #{str2})
+    </insert>
+    <update id="updateUser">
+        update test2
+        set num1=1000
+        where id = 2
+    </update>
+    <delete id="deleteUser">
+        delete
+        from test2
+        where id = 2
+    </delete>
+    <delete id="deleteMore">
+        delete
+        from test2
+        where id in (${ids})
+    </delete>
+    <!--result map自定义关系-->
+    <select id="selectUser" resultType="User">
+        select *
+        from test2
+        where id = 5
+    </select>
+    <select id="selectUsers" resultType="User">
+        select *
+        from test2
+    </select>
+<!--    User selectUser(int id);-->
+    <select id="selectUser1" resultType="User">
+        select * from test2 where id=#{id}
+    </select>
+    <select id="selectUser2" resultType="User">
+        select * from test1 where id=#{arg0} and num1=#{arg1}
+    </select>
+    <select id="selectUser4" resultType="User">
+        select * from test1 where id=#{id} and num1=#{num1}
+    </select>
+    <select id="selectUser33" resultType="com.qxc.mybatis.pojo.User">
+        select *
+        from test1
+        where id = #{id}
+          and num1 = #{num1}
+    </select>
+    <select id="getCount" resultType="java.lang.Integer">
+        select count(*) from test2
+    </select>
+    <select id="getUserById" resultType="java.util.Map">
+        SELECT * from test2
+    </select>
+    <select id="getUserById2" resultType="java.util.Map">
+        select * from test1 where id=#{id};
+    </select>
+    <select id="getByLike" resultType="com.qxc.mybatis.pojo.User">
+        select * from test2 where type1 like "%"#{username}"%"
+    </select>
+    <select id="selectFromTable" resultType="User">
+        select *
+        from ${tableName};
+    </select>
+<!--    这个方式无法解决连表查询id重复的问题，可能需要添加别名才可以查询-->
+    <resultMap id="ept1" type="Dept">
+        <result property="id" column="id2"/>
+        <result property="name" column="name"/>
+    </resultMap>
+<!--    专门处理多对一的银蛇关系-->
+    <resultMap id="ept2" type="User">
+        <result property="id" column="id1"/>
+        <result property="num1" column="num1"/>
+        <result property="num2" column="num2"/>
+        <result property="type1" column="type1"/>
+        <result property="type2" column="type2"/>
+        <result property="str1" column="str1"/>
+        <result property="str2" column="str2"/>
+        <association property="dept" javaType="Dept">
+            <result property="id" column="id2"/>
+            <result property="name" column="name"/>
+        </association>
+    </resultMap>
+<!--    分布查询查询多张表，分布查询-->
+    <select id="getDept" resultMap="ept1">
+        select test2.id       id1,
+               test2.num1,
+               test2.num2,
+               test2.type1,
+               test2.type2,
+               test2.str1,
+               test2.str2,
+               test2.did     id2
+        from test2 left join dept dp on dp.dept_id = test2.did
+        where test2.id = #{id};
+    </select>
+
+    <resultMap id="ept3" type="User">
+        <association property="dept" column="did" javaType="Dept" select="com.qxc.mybatis.mapper.DeptMapper.getById"/>
+    </resultMap>
+    <select id="getDeptByStep" resultMap="ept3">
+        select *
+        from test2
+        where id = #{id}
+    </select>
+
+</mapper>
+
+<!--
+#select * from test2 where type1 like '%#{username}%'
+#select * from test2 where type1 like concat('%', #{username}, '%')
+#                  left join dept dp on dp.id = test2.dept
+-->

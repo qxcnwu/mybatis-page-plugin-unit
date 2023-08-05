@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <!--    引入文件-->
+    <properties resource="jdbc.properties"/>
+    <!--    设置全局配置-->
+    <settings>
+        <!--        将下划线映射为驼峰-->
+        <setting name="mapUnderscoreToCamelCase" value="true"/>
+        <!--        开启延迟加载-->
+        <setting name="lazyLoadingEnabled" value="true"/>
+        <!--        开启全局加载-->
+        <setting name="aggressiveLazyLoading" value="false"/>
+    </settings>
+    <typeAliases>
+        <!--        <typeAlias type="com.qxc.mybatis.pojo.User" alias="User"/>-->
+        <!--        <typeAlias type="com.qxc.mybatis.pojo.People" alias="People"/>-->
+        <!--        <typeAlias type="com.qxc.mybatis.pojo.Dept" alias="Dept"/>-->
+        <package name="com.qxc.mybatis.pojo"/>
+    </typeAliases>
+    <plugins>
+        <plugin interceptor="com.qxc.mybatis.interceptor.PageInterceptor">
+            <property name="catchError" value="false"/>
+        </plugin>
+    </plugins>
+    <!--环境配置，连接的数据库，这里使用的是MySQL-->
+    <environments default="development">
+        <environment id="development">
+            <!--指定事务管理的类型，这里简单使用Java的JDBC的提交和回滚设置-->
+            <transactionManager type="JDBC"/>
+            <!--dataSource 指连接源配置，POOLED是JDBC连接对象的数据源连接池的实现-->
+            <dataSource type="POOLED">
+                <property name="driver" value="${jdbc.driver}"/>
+                <property name="url" value="${jdbc.url}"/>
+                <property name="username" value="${jdbc.username}"/>
+                <property name="password" value="${jdbc.password}"/>
+            </dataSource>
+        </environment>
+    </environments>
+    <mappers>
+        <!--这是告诉Mybatis区哪找持久化类的映射文件，对于在src下的文件直接写文件名，
+        如果在某包下，则要写明路径,如：com/mybatis-test/config/User.xml-->
+        <!--        <mapper resource="mappers/UserMapper.xml"/>-->
+        <!--        mapper接口与映射接口-->
+        <package name="com.qxc.mybatis.mapper"/>
+    </mappers>
+</configuration>

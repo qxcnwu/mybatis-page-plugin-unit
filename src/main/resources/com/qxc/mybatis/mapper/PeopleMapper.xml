@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qxc.mybatis.mapper.PeopleMapper">
+<!--    设置字段与属性名称之间的关系，id设置逐渐-->
+<!--    级联属性赋值-->
+    <resultMap id="empRM" type="People">
+        <id property="id" column="id"/>
+        <result property="name" column="type2"/>
+    </resultMap>
+    <select id="selectById" resultMap="empRM">
+        select id
+        from test2
+        where id = #{id};
+    </select>
+    <select id="selectByIdOld" resultType="com.qxc.mybatis.pojo.People">
+        select id, type1 name
+        from test2
+        where id = #{id};
+    </select>
+</mapper>

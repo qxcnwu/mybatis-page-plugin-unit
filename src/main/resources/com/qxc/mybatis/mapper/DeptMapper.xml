@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qxc.mybatis.mapper.DeptMapper">
+    <select id="getById" resultType="com.qxc.mybatis.pojo.Dept">
+        select *
+        from dept
+        where id = #{id}
+    </select>
+    <!--    处理一对多的关系-->
+    <resultMap id="dps" type="Dept">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <collection property="atests" ofType="Atest">
+            <id property="id" column="id2"/>
+            <result property="name" column="name2"/>
+        </collection>
+    </resultMap>
+    <select id="getAllAtest" resultMap="dps">
+        select dept.id id, dept.name name, atest.id id2, atest.name name2
+        from dept
+                 left join atest on dept.id = atest.did
+        where dept.id = #{id}
+    </select>
+
+<!--    分布查询-->
+    <resultMap id="dps2" type="Dept">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <collection property="atests" javaType="atest" select="com.qxc.mybatis.mapper.AtestMapper.getByDept"
+                    column="id"/>
+    </resultMap>
+    <select id="getAllAtestSteps" resultMap="dps2">
+        select *
+        from dept
+        where id = #{id}
+    </select>
+
+
+</mapper>

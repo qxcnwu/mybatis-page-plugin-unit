@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qxc.mybatis.mapper.AtestMapper">
+    <cache/>
+    <resultMap id="ept3" type="Atest">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <!--        使得延迟加载可控-->
+        <association property="dept" column="did" javaType="Dept" fetchType="lazy"
+                     select="com.qxc.mybatis.mapper.DeptMapper.getById"/>
+    </resultMap>
+<!--    sql片段按需引入-->
+    <sql id="atestcol">
+        id,name,did
+    </sql>
+<!--    foreach循环，collection表示数组 item表示每个对象 separator分隔符 open以开始 close以结束-->
+    <insert id="insertDepts">
+        insert into atest values
+        <foreach collection="lists" item="emp" separator=",">
+            (null,#{emp.name},#{emp.deptid})
+        </foreach>
+    </insert>
+    <delete id="deleteDepts2">
+        delete from atest where id in
+        <foreach collection="lists" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </delete>
+    <delete id="deleteDepts">
+        delete from atest where
+        <foreach collection="lists" item="id" separator="or">
+            id=#{id}
+        </foreach>
+    </delete>
+    <select id="getDeptByStep" resultMap="ept3">
+        select *
+        from atest
+        where id = #{id}
+    </select>
+    <select id="getByDept" resultType="Atest">
+        select *
+        from atest
+        where did = #{did}
+    </select>
+    <!--    1=1恒成立，防止出现错误-->
+    <!--    if决定标签内容是否需要拼接条件-->
+    <!--    where标签动态生成关键字-->
+    <!--    where标签中没有关键字那么就会查询全表，并将内容前多余的标签删除，后面多余的and不能去掉-->
+    <!--    trim前后缀添加删除-->
+    <select id="selectByCondition" resultType="com.qxc.mybatis.pojo.Atest">
+        select <include refid="atestcol"/> from atest
+        <trim prefix="where" suffix="" suffixOverrides="and|or" prefixOverrides="and|or">
+            <if test="id!=null and id>0">
+                id=#{id} and
+            </if>
+            <if test="name!=null and name!=''">
+                name=#{name} and
+            </if>
+        </trim>
+    </select>
+    <select id="selectByCondition2" resultType="com.qxc.mybatis.pojo.Atest">
+        select * from atest
+        <where>
+            <if test="id!=null and id>0">
+                id=#{id}
+            </if>
+            <if test="name!=null and name!=''">
+                and name=#{name}
+            </if>
+        </where>
+    </select>
+    <select id="selectByCondition1" resultType="com.qxc.mybatis.pojo.Atest">
+        select * from atest where 1=1
+        <if test="id!=null and id>0">
+            id=#{id}
+        </if>
+        <if test="name!=null and name!=''">
+            and name=#{name}
+        </if>
+    </select>
+    <select id="selectByChose" resultType="com.qxc.mybatis.pojo.Atest">
+        select * from atest
+        <where>
+            <choose>
+                <when test="id!=null and id>0">
+                    id=#{id}
+                </when>
+                <when test="name!=null and name!=''">
+                    name=#{name}
+                </when>
+                <otherwise>
+                    id>0
+                </otherwise>
+            </choose>
+        </where>
+    </select>
+</mapper>
